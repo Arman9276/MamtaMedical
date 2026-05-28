@@ -1,0 +1,13 @@
+name: Test Self-Hosted Runner
+
+on: workflow_dispatch
+
+jobs:
+  test:
+    runs-on: self-hosted       # ← targets your runner, not GitHub's cloud
+    steps:
+      - name: Confirm it ran locally
+        run: |
+          echo "Running on: $(hostname)"
+          echo "User: $(whoami)"
+          echo "OS: $(uname -a)"

@@ -1,26 +1,30 @@
-name: Multi-Job Workflow
+name: Environment Variables Demo
 
 on:
   push:
   workflow_dispatch:
 
+env:
+  APP_NAME: myapp          # Workflow-level: accessible in all jobs and steps
+
 jobs:
-  build:
+  print-vars:
     runs-on: ubuntu-latest
-    steps:
-      - name: Build the app
-        run: echo "Building the app"
 
-  test:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Run tests
-        run: echo "Running tests"
+    env:
+      ENVIRONMENT: staging   # Job-level: accessible in all steps of this job
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: test
     steps:
-      - name: Deploy
-        run: echo "Deploying"
+      - name: Print all environment variables
+        env:
+          VERSION: 1.0.0     # Step-level: accessible only in this step
+        run: |
+          echo "=== Environment Variables ==="
+          echo "Workflow-level  → APP_NAME:     $APP_NAME"
+          echo "Job-level       → ENVIRONMENT:  $ENVIRONMENT"
+          echo "Step-level      → VERSION:       $VERSION"
+
+          echo ""
+          echo "=== GitHub Context Variables ==="
+          echo "Commit SHA: ${{ github.sha }}"
+          echo "Triggered by: ${{ github.actor }}"

@@ -4,7 +4,12 @@ on:
   workflow_dispatch: # Allows you to trigger this scan manually from the Actions tab
 
 jobs:
+  secrets-scan:
+    name: Secrets Scan
+    uses: ./.github/workflows/secrets-scan.yml
+
   codeql:
+    needs: secrets-scan
     name: CodeQL
     uses: ./.github/workflows/CodeQL-Security.yml
     with:

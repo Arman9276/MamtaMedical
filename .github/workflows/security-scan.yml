@@ -8,8 +8,19 @@ jobs:
     name: Secrets Scan
     uses: ./.github/workflows/secrets-scan.yml
 
-  codeql:
+  Semgrep:
     needs: secrets-scan
+    name: Semgrep SAST
+    uses: ./.github/workflows/Semgrep-Security.yml
+    with:
+      fail_on_findings: true  # Fail the job if Semgrep finds any issues
+    permissions:
+      contents: read          # read repository code
+      security-events: write  # upload alerts to the Security tab
+      actions: read           # needed to call the reusable workflow
+
+  codeql:
+    needs: Semgrep
     name: CodeQL
     uses: ./.github/workflows/CodeQL-Security.yml
     with:

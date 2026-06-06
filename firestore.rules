@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── PRODUCTS ──
+    // Anyone can READ products (customers browsing)
+    // Only the owner (authenticated) can WRITE
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if request.auth != null
+                   && request.auth.token.email == "armannarsinh08@gmail.com";
+    }
+
+    // ── ANNOUNCEMENTS ──
+    // Anyone can READ, only owner can WRITE
+    match /announcements/{annId} {
+      allow read: if true;
+      allow write: if request.auth != null
+                   && request.auth.token.email == "armannarsinh08@gmail.com";
+    }
+
+    // ── SETTINGS (hours, store info, note) ──
+    // Anyone can READ, only owner can WRITE
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if request.auth != null
+                   && request.auth.token.email == "armannarsinh08@gmail.com";
+    }
+
+    // ── BLOCK EVERYTHING ELSE ──
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

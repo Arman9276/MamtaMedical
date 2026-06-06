@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel — Mamta Medical</title>
+    <!-- Private owner panel — keep it out of search engines. -->
+    <meta name="robots" content="noindex, nofollow" />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+
+<body>
+
+    <!-- ══ LOGIN SCREEN ══ -->
+    <div id="loginScreen">
+        <div class="login-card">
+            <div class="login-logo">🏥</div>
+            <h1>Admin Panel</h1>
+            <p>Mamta Medical Retail &amp; General Store<br />Sign in with your owner Google account to continue.</p>
+            <button class="google-btn" id="googleSignInBtn">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
+                Continue with Google
+            </button>
+            <div class="login-error" id="loginError"></div>
+            <p class="login-note">🔒 Only authorised accounts can access this panel</p>
+        </div>
+    </div>
+
+    <!-- ══ ADMIN APP ══ -->
+    <div id="adminApp">
+
+        <!-- NAV -->
+        <nav class="admin-nav">
+            <div class="nav-left">
+                <button class="icon-btn" id="sidebarToggle" style="display:none">☰</button>
+                <div class="nav-cross"></div>
+                <span class="nav-title">Mamta <b>Admin</b></span>
+            </div>
+            <div class="nav-right">
+                <button class="icon-btn" id="themeBtn" title="Toggle theme">🌙</button>
+                <div class="nav-user">
+                    <img class="nav-avatar" id="userAvatar" src="" alt="" style="display:none" />
+                    <div class="nav-avatar-placeholder" id="userInitial"></div>
+                    <span id="userName"></span>
+                </div>
+                <button class="logout-btn" id="logoutBtn">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                    Logout
+                </button>
+            </div>
+        </nav>
+
+        <div class="admin-layout">
+            <!-- SIDEBAR -->
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-label">Main</div>
+                <button class="nav-item active" data-section="dashboard">
+                    <span class="ni-icon">📊</span> Dashboard
+                </button>
+                <button class="nav-item" data-section="products">
+                    <span class="ni-icon">💊</span> Products
+                    <span class="nav-badge" id="productCount">0</span>
+                </button>
+                <div class="sidebar-label">Store</div>
+                <button class="nav-item" data-section="stock">
+                    <span class="ni-icon">📦</span> Stock Manager
+                </button>
+                <button class="nav-item" data-section="hours">
+                    <span class="ni-icon">🕗</span> Store Hours
+                </button>
+                <button class="nav-item" data-section="announcements">
+                    <span class="ni-icon">📢</span> Announcements
+                </button>
+                <div class="sidebar-label">Settings</div>
+                <button class="nav-item" data-section="settings">
+                    <span class="ni-icon">⚙️</span> Settings
+                </button>
+            </aside>
+
+            <!-- MAIN -->
+            <main class="admin-main">
+
+                <!-- DASHBOARD -->
+                <div class="section active" id="sec-dashboard">
+                    <div class="page-head">
+                        <div>
+                            <h2>Dashboard</h2>
+                            <p>Welcome back! Here's your store overview.</p>
+                        </div>
+                        <button class="btn btn-green" onclick="showSection('products')">+ Add Product</button>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-box">
+                            <div class="sb-icon">💊</div>
+                            <div class="sb-num" id="dash-total">0</div>
+                            <div class="sb-label">Total Products</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="sb-icon">✅</div>
+                            <div class="sb-num" id="dash-instock">0</div>
+                            <div class="sb-label">In Stock</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="sb-icon">❌</div>
+                            <div class="sb-num" id="dash-outstock">0</div>
+                            <div class="sb-label">Out of Stock</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="sb-icon">📢</div>
+                            <div class="sb-num" id="dash-ann">0</div>
+                            <div class="sb-label">Announcements</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-head">
+                            <h3>Recent Products</h3>
+                            <button class="btn btn-outline btn-sm" onclick="showSection('products')">View all</button>
+                        </div>
+                        <div class="table-wrap">
+                            <table class="product-table" id="recentTable">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th class="hide-mobile">Category</th>
+                                        <th>Price</th>
+                                        <th>Stock</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentBody">
+                                    <tr>
+                                        <td colspan="4">
+                                            <div class="loading">
+                                                <div class="spinner"></div>Loading...
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PRODUCTS -->
+                <div class="section" id="sec-products">
+                    <div class="page-head">
+                        <div>
+                            <h2>Products</h2>
+                            <p>Add, edit and manage your product catalogue.</p>
+                        </div>
+                        <button class="btn btn-green" id="addProductBtn">+ Add Product</button>
+                    </div>
+                    <div class="card">
+                        <div class="table-toolbar">
+                            <div class="search-box">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8" />
+                                    <path d="m21 21-4.35-4.35" />
+                                </svg>
+                                <input type="search" id="productSearch" placeholder="Search products…" />
+                            </div>
+                            <select class="form-select" style="width:auto;height:38px" id="catFilter">
+                                <option value="">All categories</option>
+                                <option value="fever-pain">Fever & Pain</option>
+                                <option value="vitamins">Vitamins</option>
+                                <option value="skin">Skin Care</option>
+                                <option value="diabetes">Diabetes</option>
+                                <option value="baby">Baby Care</option>
+                                <option value="first-aid">First Aid</option>
+                                <option value="general">General Store</option>
+                            </select>
+                        </div>
+                        <div class="table-wrap">
+                            <table class="product-table">
+                                <thead>
+                                    <tr>
+                                        <th>Photo</th>
+                                        <th>Product</th>
+                                        <th class="hide-mobile">Category</th>
+                                        <th>Price</th>
+                                        <th>Stock</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productsBody">
+                                    <tr>
+                                        <td colspan="6">
+                                            <div class="loading">
+                                                <div class="spinner"></div>Loading products...
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STOCK MANAGER -->
+                <div class="section" id="sec-stock">
+                    <div class="page-head">
+                        <div>
+                            <h2>Stock Manager</h2>
+                            <p>Quickly toggle stock on or off for any product.</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="table-toolbar">
+                            <div class="search-box">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8" />
+                                    <path d="m21 21-4.35-4.35" />
+                                </svg>
+                                <input type="search" id="stockSearch" placeholder="Search products…" />
+                            </div>
+                            <select class="form-select" style="width:auto;height:38px" id="stockFilter">
+                                <option value="">All</option>
+                                <option value="in">In Stock</option>
+                                <option value="out">Out of Stock</option>
+                            </select>
+                        </div>
+                        <div class="table-wrap">
+                            <table class="product-table">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th class="hide-mobile">Category</th>
+                                        <th class="hide-mobile">Price</th>
+                                        <th>Status</th>
+                                        <th>Toggle</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="stockBody">
+                                    <tr>
+                                        <td colspan="5">
+                                            <div class="loading">
+                                                <div class="spinner"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STORE HOURS -->
+                <div class="section" id="sec-hours">
+                    <div class="page-head">
+                        <div>
+                            <h2>Store Hours</h2>
+                            <p>Update your opening and closing times.</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="hours-grid" id="hoursGrid">
+                            <div class="loading">
+                                <div class="spinner"></div>Loading...
+                            </div>
+                        </div>
+                        <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
+                            <button class="btn btn-green" id="saveHoursBtn">💾 Save Hours</button>
+                            <button class="btn btn-outline" id="resetHoursBtn">↺ Reset to Default</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-head">
+                            <h3>⚠️ Special Note</h3>
+                        </div>
+                        <div class="form-row">
+                            <label>Last day of month note (shown to customers)</label>
+                            <textarea class="form-textarea" id="specialNote"
+                                rows="2">On the last day of every month, store closes early at 2:00 PM.</textarea>
+                        </div>
+                        <button class="btn btn-green" style="margin-top:12px" id="saveNoteBtn">💾 Save Note</button>
+                    </div>
+                </div>
+
+                <!-- ANNOUNCEMENTS -->
+                <div class="section" id="sec-announcements">
+                    <div class="page-head">
+                        <div>
+                            <h2>Announcements</h2>
+                            <p>Post notices visible to customers on the website.</p>
+                        </div>
+                        <button class="btn btn-green" id="addAnnBtn">+ New Announcement</button>
+                    </div>
+                    <div id="annList">
+                        <div class="loading">
+                            <div class="spinner"></div>Loading...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SETTINGS -->
+                <div class="section" id="sec-settings">
+                    <div class="page-head">
+                        <div>
+                            <h2>Settings</h2>
+                            <p>Manage your store info and preferences.</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-head">
+                            <h3>Store Information</h3>
+                        </div>
+                        <div class="form-grid two">
+                            <div class="form-row">
+                                <label>Store Name</label>
+                                <input class="form-input" id="storeName" value="Mamta Medical Retail & General Store" />
+                            </div>
+                            <div class="form-row">
+                                <label>Phone Number</label>
+                                <input class="form-input" id="storePhone" value="+91 94268 94254" />
+                            </div>
+                            <div class="form-row" style="grid-column:1/-1">
+                                <label>Address</label>
+                                <input class="form-input" id="storeAddress"
+                                    value="Main Bazar Road, Khatlwada – 396120, Gujarat" />
+                            </div>
+                        </div>
+                        <button class="btn btn-green" style="margin-top:16px" id="saveSettingsBtn">💾 Save
+                            Settings</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-head">
+                            <h3>Cache Management</h3>
+                        </div>
+                        <p style="font-size:.84rem;color:var(--muted);margin-bottom:14px">
+                            Products are cached for 24 hours on customer browsers. Clear cache to force customers to see
+                            latest changes immediately.
+                        </p>
+                        <button class="btn btn-outline" id="clearCacheBtn">🗑️ Clear Customer Cache</button>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ══ ADD/EDIT PRODUCT MODAL ══ -->
+    <div class="modal-overlay" id="productModal">
+        <div class="modal">
+            <div class="modal-head">
+                <h3 id="modalTitle">Add Product</h3>
+                <button class="icon-btn" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editProductId" />
+                <div class="form-grid two">
+                    <div class="form-row" style="grid-column:1/-1">
+                        <label>Product Photo</label>
+                        <div class="photo-upload" id="photoUploadArea">
+                            <input type="file" id="photoInput" accept="image/*" />
+                            <button type="button" class="pu-remove" id="photoRemove" title="Remove photo">✕</button>
+                            <div class="pu-icon">📸</div>
+                            <div class="pu-text">Tap to upload photo<br /><b>JPG, PNG up to 5MB</b></div>
+                            <img class="photo-preview" id="photoPreview" alt="Preview" />
+                            <div class="pu-status" id="puStatus"></div>
+                        </div>
+                        <input type="hidden" id="photoUrl" />
+                    </div>
+                    <div class="form-row">
+                        <label>Product Name *</label>
+                        <input class="form-input" id="pName" placeholder="e.g. Crocin 500mg" required />
+                    </div>
+                    <div class="form-row">
+                        <label>Brand *</label>
+                        <input class="form-input" id="pBrand" placeholder="e.g. GSK" />
+                    </div>
+                    <div class="form-row">
+                        <label>Category *</label>
+                        <select class="form-select" id="pCat">
+                            <option value="">Select category</option>
+                            <option value="fever-pain">💊 Fever & Pain</option>
+                            <option value="vitamins">🌿 Vitamins</option>
+                            <option value="skin">🧴 Skin Care</option>
+                            <option value="diabetes">🩺 Diabetes</option>
+                            <option value="baby">👶 Baby Care</option>
+                            <option value="first-aid">🩹 First Aid</option>
+                            <option value="general">🛒 General Store</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Price (₹) *</label>
+                        <input class="form-input" id="pPrice" type="number" placeholder="e.g. 45" />
+                    </div>
+                    <div class="form-row">
+                        <label>Unit / Pack size</label>
+                        <input class="form-input" id="pUnit" placeholder="e.g. 10 tabs, 100ml" />
+                    </div>
+                    <div class="form-row" style="grid-column:1/-1">
+                        <label>Emoji Icon — tap to select</label>
+                        <input type="hidden" id="pEmoji" value="💊" />
+                        <div class="emoji-picker" id="emojiPicker">
+                            <div class="emoji-selected" id="emojiSelected">💊</div>
+                            <div class="emoji-grid" id="emojiGrid"></div>
+                        </div>
+                    </div>
+                    <div class="form-row" style="grid-column:1/-1">
+                        <label>Description (optional) — with formatting</label>
+                        <div class="rte-wrap">
+                            <div class="rte-toolbar">
+                                <!-- Text format -->
+                                <button type="button" class="rte-btn" data-cmd="bold" title="Bold"><b>B</b></button>
+                                <button type="button" class="rte-btn" data-cmd="italic" title="Italic"><i>I</i></button>
+                                <button type="button" class="rte-btn" data-cmd="underline"
+                                    title="Underline"><u>U</u></button>
+                                <button type="button" class="rte-btn" data-cmd="strikeThrough"
+                                    title="Strikethrough"><s>S</s></button>
+                                <div class="rte-sep"></div>
+                                <!-- Lists -->
+                                <button type="button" class="rte-btn" data-cmd="insertUnorderedList"
+                                    title="Bullet list">• ≡</button>
+                                <button type="button" class="rte-btn" data-cmd="insertOrderedList"
+                                    title="Numbered list">1 ≡</button>
+                                <div class="rte-sep"></div>
+                                <!-- Align -->
+                                <button type="button" class="rte-btn" data-cmd="justifyLeft"
+                                    title="Align left">⬅</button>
+                                <button type="button" class="rte-btn" data-cmd="justifyCenter" title="Centre">☰</button>
+                                <button type="button" class="rte-btn" data-cmd="justifyRight"
+                                    title="Align right">➡</button>
+                                <div class="rte-sep"></div>
+                                <!-- Colour -->
+                                <button type="button" class="rte-btn" data-cmd="hiliteColor" data-val="#00e57130"
+                                    title="Highlight green" style="font-size:1rem">🟩</button>
+                                <button type="button" class="rte-btn" data-cmd="hiliteColor" data-val="#ffb06030"
+                                    title="Highlight orange" style="font-size:1rem">🟧</button>
+                                <button type="button" class="rte-btn" data-cmd="removeFormat" title="Clear formatting"
+                                    style="font-size:.7rem;color:var(--danger)">✕fmt</button>
+                            </div>
+                            <div class="rte-body" id="pDesc" contenteditable="true"
+                                data-placeholder="Write a helpful product description… e.g. dosage, usage, pack size details"
+                                spellcheck="false"></div>
+                            <div class="rte-count"><span id="rteCount">0</span> characters</div>
+                        </div>
+                    </div>
+                    <div class="form-row" style="grid-column:1/-1">
+                        <label>Stock Status</label>
+                        <div class="toggle-wrap">
+                            <button class="toggle on" id="pStock" onclick="toggleStock(this)"></button>
+                            <span class="toggle-label" id="pStockLabel">In Stock</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-foot">
+                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-green" id="saveProductBtn">💾 Save Product</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ ADD ANNOUNCEMENT MODAL ══ -->
+    <div class="modal-overlay" id="annModal">
+        <div class="modal">
+            <div class="modal-head">
+                <h3>New Announcement</h3>
+                <button class="icon-btn" onclick="closeAnnModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label>Title *</label>
+                        <input class="form-input" id="annTitle" placeholder="e.g. Holiday Hours" />
+                    </div>
+                    <div class="form-row">
+                        <label>Message *</label>
+                        <textarea class="form-textarea" id="annBody" rows="3"
+                            placeholder="Write your announcement…"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Type</label>
+                        <select class="form-select" id="annType">
+                            <option value="info">ℹ️ Info (green)</option>
+                            <option value="warn">⚠️ Warning (orange)</option>
+                            <option value="danger">🚨 Urgent (red)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-foot">
+                <button class="btn btn-outline" onclick="closeAnnModal()">Cancel</button>
+                <button class="btn btn-green" id="saveAnnBtn">📢 Post Announcement</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ══ FIREBASE + APP SCRIPT ══ -->
+    <script type="module" src="js/admin.js"></script>
+</body>
+
+</html>

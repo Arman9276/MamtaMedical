@@ -10,7 +10,7 @@ jobs:
     steps:
       # Step 1: Download your source code files
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.3
 
       # Step 2: Authenticate with Docker Hub using repository secrets/variables
       - name: Login to Docker Hub

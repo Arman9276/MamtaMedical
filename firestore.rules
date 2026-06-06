@@ -2,29 +2,31 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ── PRODUCTS ──
-    // Anyone can READ products (customers browsing)
-    // Only the owner (authenticated) can WRITE
+    // Single place that defines "is this the owner?".
+    // Must be signed in, with a VERIFIED email that matches the owner.
+    function isOwner() {
+      return request.auth != null
+          && request.auth.token.email_verified == true
+          && request.auth.token.email == "armannarsinh08@gmail.com";
+    }
+
+    // ── PRODUCTS ──  public read, owner-only write
     match /products/{productId} {
       allow read: if true;
-      allow write: if request.auth != null
-                   && request.auth.token.email == "armannarsinh08@gmail.com";
+      allow write: if isOwner();
     }
 
-    // ── ANNOUNCEMENTS ──
-    // Anyone can READ, only owner can WRITE
+    // ── ANNOUNCEMENTS ──  public read, owner-only write
     match /announcements/{annId} {
       allow read: if true;
-      allow write: if request.auth != null
-                   && request.auth.token.email == "armannarsinh08@gmail.com";
+      allow write: if isOwner();
     }
 
-    // ── SETTINGS (hours, store info, note) ──
-    // Anyone can READ, only owner can WRITE
+    // ── SETTINGS (hours, store info) ──  public read, owner-only write
+    // NOTE: this is world-readable — never store private data here.
     match /settings/{settingId} {
       allow read: if true;
-      allow write: if request.auth != null
-                   && request.auth.token.email == "armannarsinh08@gmail.com";
+      allow write: if isOwner();
     }
 
     // ── BLOCK EVERYTHING ELSE ──

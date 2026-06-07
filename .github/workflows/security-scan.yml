@@ -33,3 +33,12 @@ jobs:
       contents: read          # read repository code
       security-events: write  # upload alerts to the Security tab
       actions: read     
+      
+  deploy:
+    needs: [ Betterleaks, Semgrep, codeql ]
+    name: Deploy to GitHub Pages
+    uses: ./.github/workflows/page-deploy.yml
+    permissions:
+      contents: read          # read repository code
+      pages: write            # needed to deploy to GitHub Pages
+      id-token: write         # needed to deploy to GitHub Pages

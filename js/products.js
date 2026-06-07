@@ -1,103 +1,103 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js';
-        import { getFirestore, collection, getDocs, query, orderBy, onSnapshot }
-            from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js';
-        import { FIREBASE_CONFIG, WA_NUM } from './config.js';
+import { getFirestore, collection, getDocs, query, orderBy, onSnapshot }
+    from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js';
+import { FIREBASE_CONFIG, WA_NUM } from './config.js';
 
-        const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
+const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
 
-        const app = initializeApp(FIREBASE_CONFIG);
-        const db = getFirestore(app);
+const app = initializeApp(FIREBASE_CONFIG);
+const db = getFirestore(app);
 
-        /* ── HTML ESCAPE (stored data is rendered via innerHTML) ── */
-        function esc(s) {
-            return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-        }
+/* ── HTML ESCAPE (stored data is rendered via innerHTML) ── */
+function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
 
-        /* ── THEME ── */
-        const html = document.documentElement;
-        const themeBtn = document.getElementById('themeBtn');
-        const themeIcon = document.getElementById('themeIcon');
-        const metaTheme = document.getElementById('themeColor');
-        function setTheme(t) {
-            html.setAttribute('data-theme', t);
-            themeIcon.textContent = t === 'dark' ? '☀️' : '🌙';
-            metaTheme.setAttribute('content', t === 'dark' ? '#060f1e' : '#f0f5f0');
-            try { localStorage.setItem('mm-theme', t); } catch (e) { }
-        }
-        try { setTheme(localStorage.getItem('mm-theme') || (window.matchMedia('(prefers-color-scheme:light)').matches ? 'light' : 'dark')); }
-        catch (e) { setTheme('dark'); }
-        themeBtn.addEventListener('click', () => setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+/* ── THEME ── */
+const html = document.documentElement;
+const themeBtn = document.getElementById('themeBtn');
+const themeIcon = document.getElementById('themeIcon');
+const metaTheme = document.getElementById('themeColor');
+function setTheme(t) {
+    html.setAttribute('data-theme', t);
+    themeIcon.textContent = t === 'dark' ? '☀️' : '🌙';
+    metaTheme.setAttribute('content', t === 'dark' ? '#060f1e' : '#f0f5f0');
+    try { localStorage.setItem('mm-theme', t); } catch (e) { }
+}
+try { setTheme(localStorage.getItem('mm-theme') || (window.matchMedia('(prefers-color-scheme:light)').matches ? 'light' : 'dark')); }
+catch (e) { setTheme('dark'); }
+themeBtn.addEventListener('click', () => setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
 
-        /* ── NAV SCROLL ── */
-        window.addEventListener('scroll', () => {
-            document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 20);
-        }, { passive: true });
+/* ── NAV SCROLL ── */
+window.addEventListener('scroll', () => {
+    document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 20);
+}, { passive: true });
 
-        /* ── HAMBURGER ── */
-        const menuBtn = document.getElementById('menuBtn');
-        const mobileMenu = document.getElementById('mobileMenu');
-        function closeMenu() { mobileMenu.classList.remove('open'); menuBtn.classList.remove('open'); menuBtn.setAttribute('aria-expanded', 'false'); }
-        menuBtn.addEventListener('click', () => { var o = mobileMenu.classList.toggle('open'); menuBtn.classList.toggle('open', o); menuBtn.setAttribute('aria-expanded', String(o)); });
-        mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
-        document.addEventListener('click', e => { if (!mobileMenu.contains(e.target) && !menuBtn.contains(e.target)) closeMenu(); });
+/* ── HAMBURGER ── */
+const menuBtn = document.getElementById('menuBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+function closeMenu() { mobileMenu.classList.remove('open'); menuBtn.classList.remove('open'); menuBtn.setAttribute('aria-expanded', 'false'); }
+menuBtn.addEventListener('click', () => { var o = mobileMenu.classList.toggle('open'); menuBtn.classList.toggle('open', o); menuBtn.setAttribute('aria-expanded', String(o)); });
+mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+document.addEventListener('click', e => { if (!mobileMenu.contains(e.target) && !menuBtn.contains(e.target)) closeMenu(); });
 
-        /* ── CACHE ── */
-        function saveCache(key, data) {
-            try {
-                const cacheVersion = localStorage.getItem('mm-cache-version') || '0';
-                localStorage.setItem(key, JSON.stringify({ data, expiry: Date.now() + CACHE_TTL, version: cacheVersion }));
-            } catch (e) { }
-        }
-        function getCache(key) {
-            try {
-                const raw = localStorage.getItem(key);
-                if (!raw) return null;
-                const cached = JSON.parse(raw);
-                const currentVersion = localStorage.getItem('mm-cache-version') || '0';
-                if (Date.now() > cached.expiry) return null;
-                if (cached.version !== currentVersion) return null;
-                return cached.data;
-            } catch (e) { return null; }
-        }
+/* ── CACHE ── */
+function saveCache(key, data) {
+    try {
+        const cacheVersion = localStorage.getItem('mm-cache-version') || '0';
+        localStorage.setItem(key, JSON.stringify({ data, expiry: Date.now() + CACHE_TTL, version: cacheVersion }));
+    } catch (e) { }
+}
+function getCache(key) {
+    try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return null;
+        const cached = JSON.parse(raw);
+        const currentVersion = localStorage.getItem('mm-cache-version') || '0';
+        if (Date.now() > cached.expiry) return null;
+        if (cached.version !== currentVersion) return null;
+        return cached.data;
+    } catch (e) { return null; }
+}
 
-        /* ── STATE ── */
-        var allProducts = [];
-        var state = { query: '', cat: 'all', sort: 'default' };
+/* ── STATE ── */
+var allProducts = [];
+var state = { query: '', cat: 'all', sort: 'default' };
 
-        /* ── FILTER ── */
-        function getFiltered() {
-            var q = state.query.toLowerCase().trim();
-            var list = allProducts.filter(p => {
-                var matchCat = state.cat === 'all' || p.cat === state.cat;
-                var matchQ = !q || p.name.toLowerCase().includes(q) || (p.brand || '').toLowerCase().includes(q);
-                return matchCat && matchQ;
-            });
-            if (state.sort === 'price-asc') list.sort((a, b) => a.price - b.price);
-            if (state.sort === 'price-desc') list.sort((a, b) => b.price - a.price);
-            if (state.sort === 'name-asc') list.sort((a, b) => a.name.localeCompare(b.name));
-            return list;
-        }
+/* ── FILTER ── */
+function getFiltered() {
+    var q = state.query.toLowerCase().trim();
+    var list = allProducts.filter(p => {
+        var matchCat = state.cat === 'all' || p.cat === state.cat;
+        var matchQ = !q || p.name.toLowerCase().includes(q) || (p.brand || '').toLowerCase().includes(q);
+        return matchCat && matchQ;
+    });
+    if (state.sort === 'price-asc') list.sort((a, b) => a.price - b.price);
+    if (state.sort === 'price-desc') list.sort((a, b) => b.price - a.price);
+    if (state.sort === 'name-asc') list.sort((a, b) => a.name.localeCompare(b.name));
+    return list;
+}
 
-        /* ── RENDER ── */
-        function catLabel(c) {
-            const m = { 'fever-pain': 'Fever & Pain', 'vitamins': 'Vitamins', 'skin': 'Skin Care', 'diabetes': 'Diabetes', 'baby': 'Baby Care', 'first-aid': 'First Aid', 'general': 'General Store' };
-            return m[c] || c;
-        }
-        function render() {
-            const list = getFiltered();
-            const grid = document.getElementById('productsGrid');
-            const empty = document.getElementById('emptyState');
-            document.getElementById('resultCount').textContent = list.length;
-            if (!list.length) { empty.classList.add('show'); grid.innerHTML = ''; return; }
-            empty.classList.remove('show');
-            const isGen = p => p.cat === 'general';
-            grid.innerHTML = list.map((p, i) => {
-                const waMsg = encodeURIComponent('Hi Mamta Medical, I would like to enquire about: ' + p.name + (p.unit ? ' (' + p.unit + ')' : '') + '. Is it available at the store?');
-                return `<div class="p-card${p.inStock ? '' : ' oos'}" style="animation-delay:${Math.min(i * .04, .4)}s">
+/* ── RENDER ── */
+function catLabel(c) {
+    const m = { 'fever-pain': 'Fever & Pain', 'vitamins': 'Vitamins', 'skin': 'Skin Care', 'diabetes': 'Diabetes', 'baby': 'Baby Care', 'first-aid': 'First Aid', 'general': 'General Store' };
+    return m[c] || c;
+}
+function render() {
+    const list = getFiltered();
+    const grid = document.getElementById('productsGrid');
+    const empty = document.getElementById('emptyState');
+    document.getElementById('resultCount').textContent = list.length;
+    if (!list.length) { empty.classList.add('show'); grid.innerHTML = ''; return; }
+    empty.classList.remove('show');
+    const isGen = p => p.cat === 'general';
+    grid.innerHTML = list.map((p, i) => {
+        const waMsg = encodeURIComponent('Hi Mamta Medical, I would like to enquire about: ' + p.name + (p.unit ? ' (' + p.unit + ')' : '') + '. Is it available at the store?');
+        return `<div class="p-card${p.inStock ? '' : ' oos'}" data-id="${esc(p.id)}" style="animation-delay:${Math.min(i * .04, .4)}s">
       ${!p.inStock ? '<span class="oos-badge">Out of Stock</span>' : ''}
       ${p.photoUrl
-                        ? `<img class="p-photo" src="${esc(p.photoUrl)}" alt="${esc(p.name)}" loading="lazy"/>`
-                        : `<span class="p-emoji">${esc(p.emoji || '💊')}</span>`}
+                ? `<img class="p-photo" src="${esc(p.photoUrl)}" alt="${esc(p.name)}" loading="lazy"/>`
+                : `<span class="p-emoji">${esc(p.emoji || '💊')}</span>`}
       <span class="p-cat${isGen(p) ? ' gen' : ''}">${esc(catLabel(p.cat))}</span>
       <div class="p-name">${esc(p.name)}</div>
       <div class="p-brand">${esc(p.brand || '')}</div>
@@ -110,88 +110,168 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.13.0/fireba
         </a>
       </div>
     </div>`;
-            }).join('');
-        }
+    }).join('');
+}
 
-        /* ── LOAD PRODUCTS (cache first) ── */
-        async function loadProducts() {
-            const cached = getCache('mm-products-cache');
-            if (cached) {
-                allProducts = cached;
-                showProducts();
-                render();
-            }
-            // always fetch fresh in background
-            try {
-                const snap = await getDocs(query(collection(db, 'products'), orderBy('createdAt', 'desc')));
-                const fresh = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                saveCache('mm-products-cache', fresh);
-                allProducts = fresh;
-                window.__mmProducts = fresh; // expose for chatbot
-                document.getElementById('countAll').textContent = fresh.length;
-                showProducts();
-                render();
-            } catch (e) { console.warn('Firebase fetch failed, using cache'); }
-        }
+/* ── LOAD PRODUCTS (cache first) ── */
+async function loadProducts() {
+    const cached = getCache('mm-products-cache');
+    if (cached) {
+        allProducts = cached;
+        showProducts();
+        render();
+    }
+    // always fetch fresh in background
+    try {
+        const snap = await getDocs(query(collection(db, 'products'), orderBy('createdAt', 'desc')));
+        const fresh = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        saveCache('mm-products-cache', fresh);
+        allProducts = fresh;
+        window.__mmProducts = fresh; // expose for chatbot
+        document.getElementById('countAll').textContent = fresh.length;
+        showProducts();
+        render();
+    } catch (e) { console.warn('Firebase fetch failed, using cache'); }
+}
 
-        function showProducts() {
-            document.getElementById('skeletonGrid').style.display = 'none';
-            document.getElementById('productsGrid').style.display = 'grid';
-        }
+function showProducts() {
+    document.getElementById('skeletonGrid').style.display = 'none';
+    document.getElementById('productsGrid').style.display = 'grid';
+}
 
-        /* ── LOAD ANNOUNCEMENTS ── */
-        async function loadAnnouncements() {
-            try {
-                const snap = await getDocs(query(collection(db, 'announcements'), orderBy('createdAt', 'desc')));
-                const anns = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                const banner = document.getElementById('annBanner');
-                if (!anns.length) { banner.style.display = 'none'; return; }
-                const icons = { info: 'ℹ️', warn: '⚠️', danger: '🚨' };
-                banner.innerHTML = anns.slice(0, 3).map(a => {
-                    const type = ['info', 'warn', 'danger'].includes(a.type) ? a.type : 'info';
-                    return `
+/* ── LOAD ANNOUNCEMENTS ── */
+async function loadAnnouncements() {
+    try {
+        const snap = await getDocs(query(collection(db, 'announcements'), orderBy('createdAt', 'desc')));
+        const anns = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const banner = document.getElementById('annBanner');
+        if (!anns.length) { banner.style.display = 'none'; return; }
+        const icons = { info: 'ℹ️', warn: '⚠️', danger: '🚨' };
+        banner.innerHTML = anns.slice(0, 3).map(a => {
+            const type = ['info', 'warn', 'danger'].includes(a.type) ? a.type : 'info';
+            return `
       <div class="ann-item ${type}">
         <span class="ann-icon">${icons[type]}</span>
         <div class="ann-content"><b>${esc(a.title)}</b> — ${esc(a.body)}</div>
       </div>`;
-                }).join('');
-            } catch (e) { }
-        }
+        }).join('');
+    } catch (e) { }
+}
 
-        /* ── EVENTS ── */
-        var searchTimer;
-        document.getElementById('searchInput').addEventListener('input', function () {
-            clearTimeout(searchTimer);
-            searchTimer = setTimeout(() => { state.query = this.value; document.getElementById('searchClear').classList.toggle('show', !!this.value); render(); }, 200);
-        });
-        document.getElementById('searchClear').addEventListener('click', () => {
-            document.getElementById('searchInput').value = ''; state.query = '';
-            document.getElementById('searchClear').classList.remove('show'); render();
-        });
-        document.getElementById('catPills').addEventListener('click', e => {
-            const btn = e.target.closest('.pill'); if (!btn) return;
-            document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-            btn.classList.add('active'); state.cat = btn.dataset.cat; render();
-        });
-        document.getElementById('sortSelect').addEventListener('change', function () { state.sort = this.value; render(); });
-        window.clearAll = function () {
-            document.getElementById('searchInput').value = ''; state.query = '';
-            state.cat = 'all'; state.sort = 'default';
-            document.getElementById('searchClear').classList.remove('show');
-            document.getElementById('sortSelect').value = 'default';
-            document.querySelectorAll('.pill').forEach(p => p.classList.toggle('active', p.dataset.cat === 'all'));
-            render();
-        };
+/* ── EVENTS ── */
+var searchTimer;
+document.getElementById('searchInput').addEventListener('input', function () {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => { state.query = this.value; document.getElementById('searchClear').classList.toggle('show', !!this.value); render(); }, 200);
+});
+document.getElementById('searchClear').addEventListener('click', () => {
+    document.getElementById('searchInput').value = ''; state.query = '';
+    document.getElementById('searchClear').classList.remove('show'); render();
+});
+document.getElementById('catPills').addEventListener('click', e => {
+    const btn = e.target.closest('.pill'); if (!btn) return;
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active'); state.cat = btn.dataset.cat; render();
+});
+document.getElementById('sortSelect').addEventListener('change', function () { state.sort = this.value; render(); });
+window.clearAll = function () {
+    document.getElementById('searchInput').value = ''; state.query = '';
+    state.cat = 'all'; state.sort = 'default';
+    document.getElementById('searchClear').classList.remove('show');
+    document.getElementById('sortSelect').value = 'default';
+    document.querySelectorAll('.pill').forEach(p => p.classList.toggle('active', p.dataset.cat === 'all'));
+    render();
+};
 
-        /* ── FLOAT WA HIDE ON FOOTER ── */
-        const floatWa = document.querySelector('.float-wa');
-        const footer = document.querySelector('.footer');
-        if (floatWa && footer && 'IntersectionObserver' in window) {
-            new IntersectionObserver(e => floatWa.classList.toggle('hidden', e[0].isIntersecting), { threshold: .05 }).observe(footer);
-        }
+/* ── FLOAT WA HIDE ON FOOTER ── */
+const floatWa = document.querySelector('.float-wa');
+const footer = document.querySelector('.footer');
+if (floatWa && footer && 'IntersectionObserver' in window) {
+    new IntersectionObserver(e => floatWa.classList.toggle('hidden', e[0].isIntersecting), { threshold: .05 }).observe(footer);
+}
 
 
 
-        /* ── INIT ── */
-        loadProducts();
-        loadAnnouncements();
+/* ── PRODUCT DETAIL MODAL ── */
+const pdOverlay = document.getElementById('pdOverlay');
+
+function openDetail(p) {
+    if (!p) return;
+
+    // media: real photo if available, else the emoji
+    document.getElementById('pdMedia').innerHTML = p.photoUrl
+        ? `<img src="${esc(p.photoUrl)}" alt="${esc(p.name)}"/>`
+        : `<span class="pd-emoji">${esc(p.emoji || '💊')}</span>`;
+
+    // category pill
+    const catEl = document.getElementById('pdCat');
+    catEl.textContent = catLabel(p.cat);
+    catEl.classList.toggle('gen', p.cat === 'general');
+
+    // out-of-stock badge
+    document.getElementById('pdOos').hidden = !!p.inStock;
+
+    // name / brand / price
+    document.getElementById('pdName').textContent = p.name || '';
+    document.getElementById('pdBrand').textContent = p.brand || '';
+    document.getElementById('pdPrice').innerHTML =
+        `₹${esc(p.price)}<span class="p-unit">/ ${esc(p.unit || '')}</span>`;
+
+    // description — owner-authored rich text from the admin panel.
+    // Writes are restricted to the owner by firestore.rules, so this
+    // HTML is trusted (same trust model the admin editor already uses).
+    const descEl = document.getElementById('pdDesc');
+    const plain = (p.desc || '').replace(/<[^>]*>/g, '').trim();
+    if (plain.length) {
+        descEl.innerHTML = p.desc;
+        descEl.classList.remove('empty');
+    } else {
+        descEl.textContent = 'No additional details available — tap Enquire to ask us about this product.';
+        descEl.classList.add('empty');
+    }
+
+    // WhatsApp enquire button
+    const order = document.getElementById('pdOrder');
+    const label = document.getElementById('pdOrderLabel');
+    if (p.inStock) {
+        const waMsg = encodeURIComponent('Hi Mamta Medical, I would like to enquire about: ' + p.name + (p.unit ? ' (' + p.unit + ')' : '') + '. Is it available at the store?');
+        order.href = 'https://wa.me/' + WA_NUM + '?text=' + waMsg;
+        order.classList.remove('disabled');
+        order.removeAttribute('tabindex');
+        label.textContent = 'Enquire on WhatsApp';
+    } else {
+        order.href = '#';
+        order.classList.add('disabled');
+        order.setAttribute('tabindex', '-1');
+        label.textContent = 'Currently Unavailable';
+    }
+
+    pdOverlay.classList.add('open');
+    pdOverlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('pdClose').focus();
+}
+
+function closeDetail() {
+    pdOverlay.classList.remove('open');
+    pdOverlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+}
+
+// open when a card is tapped — but let the card's own Enquire link work
+document.getElementById('productsGrid').addEventListener('click', e => {
+    if (e.target.closest('.p-order')) return;
+    const card = e.target.closest('.p-card');
+    if (!card) return;
+    openDetail(allProducts.find(x => x.id === card.dataset.id));
+});
+
+document.getElementById('pdClose').addEventListener('click', closeDetail);
+pdOverlay.addEventListener('click', e => { if (e.target === pdOverlay) closeDetail(); });
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && pdOverlay.classList.contains('open')) closeDetail();
+});
+
+/* ── INIT ── */
+loadProducts();
+loadAnnouncements();

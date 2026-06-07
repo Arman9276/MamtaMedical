@@ -4,12 +4,20 @@ on:
   workflow_dispatch: # Allows you to trigger this scan manually from the Actions tab
 
 jobs:
-  secrets-scan:
-    name: Secrets Scan
-    uses: ./.github/workflows/secrets-scan.yml
+  # secrets-scan:
+  #   name: Secrets Scan
+  #   uses: ./.github/workflows/secrets-scan.yml
 
+  Betterleaks:
+    name: Betterleaks Secrets Scan
+    uses: ./.github/workflows/betterleak-secrets-scan.yml
+    permissions:
+      contents: read          # read repository code
+      security-events: write  # upload alerts to the Security tab
+      actions: read           # needed to call the reusable workflow
+    
   Semgrep:
-    needs: secrets-scan
+    needs: Betterleaks
     name: Semgrep SAST
     uses: ./.github/workflows/Semgrep-Security.yml
     with:

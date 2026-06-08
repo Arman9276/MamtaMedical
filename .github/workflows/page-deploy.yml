@@ -1,0 +1,59 @@
+name: "Deploy to GitHub Pages (reusable)"
+
+# Reusable: called by the orchestrator AFTER security scans pass.
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Assemble the public website
+        # Publish ONLY the live site files (not server/, docs/, CI, etc.)
+        env:
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+        run: |
+          if [ -z "$FIREBASE_API_KEY" ]; then
+            echo "::error::FIREBASE_API_KEY secret is not set. Add it under Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+          mkdir -p _site
+          cp index.html products.html admin.html _site/
+          cp -r css _site/
+          cp -r js  _site/
+          # Build the real config.js from the template (config.js is gitignored).
+          sed "s|__FIREBASE_API_KEY__|${FIREBASE_API_KEY}|g" js/config.template.js > _site/js/config.js
+          rm -f _site/js/config.template.js
+          touch _site/.nojekyll
+          echo "Publishing:"; find _site -type f | sort
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

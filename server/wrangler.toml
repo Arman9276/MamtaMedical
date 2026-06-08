@@ -1,0 +1,13 @@
+name = "mamta-ai"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+
+# Optional but recommended: lock the proxy to your own site so others
+# can't run up your free quota. Comma-separated list of allowed origins.
+# Leave this commented out to allow any origin while you test.
+# [vars]
+# ALLOWED_ORIGIN = "https://your-site-url.example"
+
+# NOTE: API keys are NOT stored here. They are encrypted secrets set with:
+#   npx wrangler secret put GROQ_KEY
+#   npx wrangler secret put GEMINI_KEY

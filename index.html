@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <meta name="theme-color" content="#060f1e" id="themeColor" />
+  <script>
+    /* Set theme BEFORE first paint → no dark flash when navigating between pages.
+       Default follows the system; a manual toggle (saved in localStorage) wins;
+       follows the system live when the visitor hasn't chosen manually. */
+    (function () {
+      try {
+        var KEY = 'mm-theme';
+        var saved = localStorage.getItem(KEY);
+        var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+        var root = document.documentElement;
+        function apply(t) {
+          root.setAttribute('data-theme', t);
+          var m = document.getElementById('themeColor');
+          if (m) m.setAttribute('content', t === 'dark' ? '#060f1e' : '#f0f5f0');
+        }
+        apply(saved || (mq && mq.matches ? 'dark' : 'light'));
+        if (!saved && mq && mq.addEventListener) {
+          mq.addEventListener('change', function (e) { apply(e.matches ? 'dark' : 'light'); });
+        }
+      } catch (e) { }
+    })();
+  </script>
+  <title>Mamta Medical — Khatlwada</title>
+
+  <!-- ════════ SEO / SOCIAL ════════
+       BEFORE PUBLISHING, replace every "REPLACE_ME.example" below with your
+       real website URL, and point og:image / "image" at a real share image
+       (a logo or storefront photo, ideally ~1200×630px).
+       OPTIONAL but recommended for Google Maps rich results: add a "geo"
+       block to the JSON-LD with your store's real latitude & longitude
+       (open Google Maps, right-click your shop, copy the coordinates):
+         "geo": { "@type": "GeoCoordinates", "latitude": 20.000, "longitude": 72.000 } -->
+  <meta name="description"
+    content="Mamta Medical Retail & General Store, Khatlwada (Gujarat) — medicines, vitamins, baby care, first aid and general store items. Open daily 8:30 AM–8:30 PM. Call +91 94268 94254." />
+  <link rel="canonical" href="https://REPLACE_ME.example/" />
+  <meta property="og:type" content="business.business" />
+  <meta property="og:title" content="Mamta Medical — Khatlwada" />
+  <meta property="og:description"
+    content="Medicines, vitamins, baby care, first aid & general store items in Khatlwada, Gujarat. Open daily 8:30 AM–8:30 PM." />
+  <meta property="og:image" content="https://REPLACE_ME.example/share-image.jpg" />
+  <meta property="og:locale" content="en_IN" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Mamta Medical — Khatlwada" />
+  <meta name="twitter:description"
+    content="Medicines, vitamins, baby care & general store items in Khatlwada, Gujarat. Open daily 8:30 AM–8:30 PM." />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Pharmacy",
+    "name": "Mamta Medical Retail & General Store",
+    "image": "https://REPLACE_ME.example/share-image.jpg",
+    "url": "https://REPLACE_ME.example/",
+    "telephone": "+91 94268 94254",
+    "priceRange": "₹₹",
+    "currenciesAccepted": "INR",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Main Bazar Road",
+      "addressLocality": "Khatlwada",
+      "addressRegion": "Gujarat",
+      "postalCode": "396120",
+      "addressCountry": "IN"
+    },
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        "opens": "08:30",
+        "closes": "20:30"
+      }
+    ]
+  }
+  </script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="css/index.css" />
+</head>
+
+<body>
+
+  <!-- ══ NAV ══ -->
+  <nav class="nav" id="mainNav">
+    <a href="#" class="nav-logo">
+      <div class="logo-cross"></div>
+      <span class="logo-name">Mamta <b>Medical</b></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#hours">Hours</a></li>
+      <li><a href="products.html">Products</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-controls">
+      <button class="theme-btn" id="themeBtn" aria-label="Toggle theme" title="Toggle light / dark">
+        <span id="themeIcon">☀️</span>
+      </button>
+      <button class="hamburger" id="menuBtn" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- mobile drawer -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#about">About the Store <span class="arr">→</span></a>
+    <a href="#hours">Store Hours <span class="arr">→</span></a>
+    <a href="#contact">Contact Us <span class="arr">→</span></a>
+    <a href="https://wa.me/919426894254?text=Hi%20Mamta%20Medical%2C%20I%20need%20help." target="_blank" rel="noopener"
+      class="wa-link">WhatsApp Us <span class="arr">→</span></a>
+  </div>
+
+  <!-- ══ HERO ══ -->
+  <section class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-glow2"></div>
+    <div class="hero-content">
+      <p class="eyebrow">Main Bazar Road · Khatlwada · 396120</p>
+      <h1>
+        Your family's<br />
+        <span class="h1-outline" data-text="health">health</span><br />
+        <span class="h1-green">— our mission.</span>
+      </h1>
+      <p class="hero-sub">Medicines, health products &amp; daily essentials — trusted by families in Khatlwada. Open
+        every single day of the year.</p>
+      <div class="hero-btns">
+        <a href="https://wa.me/919426894254?text=Hi%20Mamta%20Medical." class="btn-p" target="_blank" rel="noopener">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a3.178 3.178 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+            <path
+              d="M12 0C5.373 0 0 5.373 0 12c0 2.106.55 4.083 1.512 5.8L0 24l6.377-1.496A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.886 0-3.655-.518-5.171-1.418l-.371-.22-3.787.889.928-3.682-.241-.381A9.944 9.944 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
+          </svg>
+          WhatsApp Us
+        </a>
+        <a href="products.html" class="btn-o">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" />
+            <path d="M8 21h8M12 17v4" />
+          </svg>
+          Browse Products
+        </a>
+        <a href="tel:+919426894254" class="btn-o">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.09 10.8a19.79 19.79 0 01-3.07-8.68A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z" />
+          </svg>
+          Call Us
+        </a>
+      </div>
+    </div>
+    <!-- stats -->
+    <div class="stats stagger">
+      <div class="stat">
+        <div class="se">💊</div>
+        <div class="sn" data-count="500" data-suffix="+">500+</div>
+        <div class="sl">Medicines &amp; pharma products</div>
+      </div>
+      <div class="stat">
+        <div class="se">📅</div>
+        <div class="sn" data-count="365">365</div>
+        <div class="sl">Days a year — never closed</div>
+      </div>
+      <div class="stat">
+        <div class="se">🕗</div>
+        <div class="sn">12h</div>
+        <div class="sl">Daily · 8:30 AM – 8:30 PM</div>
+      </div>
+      <div class="stat">
+        <div class="se">❤️</div>
+        <div class="sn">#1</div>
+        <div class="sl">Trusted store in Khatlwada</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ TICKER ══ -->
+  <div class="ticker" aria-hidden="true">
+    <div class="t-track">
+      <span class="ti"><span class="td"></span>Prescription Medicines</span>
+      <span class="ti"><span class="td"></span>OTC Products</span>
+      <span class="ti"><span class="td"></span>Vitamins &amp; Supplements</span>
+      <span class="ti"><span class="td"></span>Skin &amp; Hair Care</span>
+      <span class="ti"><span class="td"></span>Baby Products</span>
+      <span class="ti"><span class="td"></span>Diabetes Care</span>
+      <span class="ti"><span class="td"></span>First Aid</span>
+      <span class="ti"><span class="td"></span>General Store</span>
+      <span class="ti"><span class="td"></span>Household Essentials</span>
+      <span class="ti"><span class="td"></span>Prescription Medicines</span>
+      <span class="ti"><span class="td"></span>OTC Products</span>
+      <span class="ti"><span class="td"></span>Vitamins &amp; Supplements</span>
+      <span class="ti"><span class="td"></span>Skin &amp; Hair Care</span>
+      <span class="ti"><span class="td"></span>Baby Products</span>
+      <span class="ti"><span class="td"></span>Diabetes Care</span>
+      <span class="ti"><span class="td"></span>First Aid</span>
+      <span class="ti"><span class="td"></span>General Store</span>
+      <span class="ti"><span class="td"></span>Household Essentials</span>
+    </div>
+  </div>
+
+  <!-- ══ ABOUT ══ -->
+  <section id="about" class="section">
+    <div class="sec-lbl reveal">About the store</div>
+    <h2 class="sec-h2 reveal">More than a store —<br />a neighbour you trust.</h2>
+    <div class="about-body">
+      <div class="about-left reveal-left">
+        <p class="sec-p">Mamta Medical Retail and General Store has been serving families in Khatlwada with care and
+          reliability. Located on Main Bazar Road, we make healthcare accessible for the whole community.</p>
+        <p class="sec-p">From prescription medicines to daily household needs — everything under one roof, so you never
+          have to go far.</p>
+        <div class="svc-list stagger">
+          <div class="svc-item">
+            <div class="svc-l"><span class="svc-num">01</span><span class="svc-name">Prescription &amp; OTC
+                Medicines</span></div><span class="svc-arr">→</span>
+          </div>
+          <div class="svc-item">
+            <div class="svc-l"><span class="svc-num">02</span><span class="svc-name">Vitamins &amp; Supplements</span>
+            </div><span class="svc-arr">→</span>
+          </div>
+          <div class="svc-item">
+            <div class="svc-l"><span class="svc-num">03</span><span class="svc-name">Skincare &amp; Personal Care</span>
+            </div><span class="svc-arr">→</span>
+          </div>
+          <div class="svc-item">
+            <div class="svc-l"><span class="svc-num">04</span><span class="svc-name">Baby &amp; Mother Care</span></div>
+            <span class="svc-arr">→</span>
+          </div>
+          <div class="svc-item">
+            <div class="svc-l"><span class="svc-num">05</span><span class="svc-name">General Store &amp; Daily
+                Essentials</span></div><span class="svc-arr">→</span>
+          </div>
+        </div>
+      </div>
+      <div class="about-right reveal-right" id="hours">
+        <div class="hours-card">
+          <div class="hours-hd">
+            <h3>Store Hours</h3>
+            <p>Open every day of the year</p>
+          </div>
+          <div class="hours-bd">
+            <div class="badge-open">Open today</div>
+            <div class="h-row"><span class="h-day">Monday – Sunday</span><span class="h-time">8:30 AM – 8:30 PM</span>
+            </div>
+            <div class="h-row"><span class="h-day">Public Holidays</span><span class="h-time"
+                style="color:var(--muted)">Call to confirm</span></div>
+            <div class="h-alert">⚠️ <strong>Last day of every month:</strong> Store closes at 2:00 PM. Please WhatsApp
+              us before visiting.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ CONTACT ══ -->
+  <section id="contact" class="section" style="padding-top:0">
+    <div class="sec-lbl reveal">Get in touch</div>
+    <h2 class="sec-h2 reveal">We're a message away.</h2>
+    <p class="sec-p reveal" style="margin-bottom:clamp(20px,4vw,36px)">WhatsApp, call, or just walk in — whatever works
+      best.</p>
+    <div class="c-grid stagger">
+      <a href="https://wa.me/919426894254?text=Hi%20Mamta%20Medical." class="c-card c-wa" target="_blank"
+        rel="noopener">
+        <div class="c-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="#25d366">
+            <path
+              d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a3.178 3.178 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+            <path
+              d="M12 0C5.373 0 0 5.373 0 12c0 2.106.55 4.083 1.512 5.8L0 24l6.377-1.496A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.886 0-3.655-.518-5.171-1.418l-.371-.22-3.787.889.928-3.682-.241-.381A9.944 9.944 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
+          </svg></div>
+        <div class="c-lbl">WhatsApp</div>
+        <div class="c-val">+91 94268 94254</div>
+        <div class="c-hint">Tap to open chat →</div>
+      </a>
+      <a href="tel:+919426894254" class="c-card">
+        <div class="c-icon">📞</div>
+        <div class="c-lbl">Phone</div>
+        <div class="c-val">+91 94268 94254</div>
+        <div class="c-hint">Tap to call directly</div>
+      </a>
+      <div class="c-card">
+        <div class="c-icon">📍</div>
+        <div class="c-lbl">Address</div>
+        <div class="c-val">Main Bazar Road<br />Khatlwada – 396120</div>
+        <div class="c-hint">Gujarat, India</div>
+      </div>
+      <div class="map-wrap reveal-scale">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3737.5!2d72.9!3d20.6!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjDCsDM2JzAwLjAiTiA3MsKwNTQnMDAuMCJF!5e0!3m2!1sen!2sin!4v1"
+          loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade" title="Store location"></iframe>
+        <div class="map-ft">📍 <b>Main Bazar Road, Khatlwada</b> — 396120, Gujarat</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ FOOTER ══ -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-logo">
+          <div class="footer-cross"></div>
+          <span class="footer-name">Mamta <b>Medical</b></span>
+        </div>
+        <p class="footer-desc">Your trusted medical retail and general store on Main Bazar Road, Khatlwada — serving the
+          community every day with care.</p>
+        <a href="https://wa.me/919426894254?text=Hi%20Mamta%20Medical." target="_blank" rel="noopener"
+          class="footer-wa">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+            <path
+              d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a3.178 3.178 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+            <path
+              d="M12 0C5.373 0 0 5.373 0 12c0 2.106.55 4.083 1.512 5.8L0 24l6.377-1.496A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.886 0-3.655-.518-5.171-1.418l-.371-.22-3.787.889.928-3.682-.241-.381A9.944 9.944 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
+          </svg>
+          WhatsApp Us
+        </a>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul class="footer-links">
+          <li><a href="#">Home</a></li>
+          <li><a href="#about">About Us</a></li>
+          <li><a href="#hours">Store Hours</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact Info</h4>
+        <div class="fc-list">
+          <div class="fc-item"><span class="fc-ico">📍</span><span>Main Bazar Road, Khatlwada – 396120, Gujarat</span>
+          </div>
+          <div class="fc-item"><span class="fc-ico">📞</span><span>+91 94268 94254</span></div>
+          <div class="fc-item"><span class="fc-ico">🕗</span><span>Mon–Sun · 8:30 AM – 8:30 PM</span></div>
+          <div class="fc-item"><span class="fc-ico">⚠️</span><span>Last day of month closes at 2:00 PM</span></div>
+        </div>
+      </div>
+    </div>
+    <hr class="footer-divider" />
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 Mamta Medical Retail &amp; General Store</span>
+      <span class="footer-rights">All rights reserved</span>
+    </div>
+  </footer>
+
+  <!-- ══ FLOATING WA ══ -->
+  <a href="https://wa.me/919426894254?text=Hi%20Mamta%20Medical." class="float-wa" target="_blank" rel="noopener"
+    aria-label="Chat on WhatsApp">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+      <path
+        d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a3.178 3.178 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+      <path
+        d="M12 0C5.373 0 0 5.373 0 12c0 2.106.55 4.083 1.512 5.8L0 24l6.377-1.496A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.886 0-3.655-.518-5.171-1.418l-.371-.22-3.787.889.928-3.682-.241-.381A9.944 9.944 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
+    </svg>
+    WhatsApp Us
+  </a>
+
+  <script src="js/index.js"></script>
+
+  <script src="js/chatbot.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,4 @@
+# Public Firebase web API key in js/config.js — safe to expose by design
+# (it identifies the project; Firestore rules + Auth enforce access).
+# Confirmed false positive, dismissed here.
+26834f1af40d3447e7d4ffd7ec2296c5d94405f6:js/config.js:gcp-api-key:10

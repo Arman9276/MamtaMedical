@@ -1,0 +1,30 @@
+# Uses Trivy image scanner for Common Vulnerabilities and Exposures (CVEs) in the built Docker image
+name: Image Scanner
+
+on:
+  workflow_call: # Enables this workflow to be called as a reusable template
+
+jobs:
+  image-scan:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Download your source code files
+      - name: Checkout code
+        uses: actions/checkout@v6.0.3
+
+      # Step 2: Authenticate with Docker Hub using repository secrets/variables
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4.1.0
+        with:
+          username: ${{ vars.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Step 3: Scan the built image using Trivy
+      - name: Scan Docker Image with Trivy
+        uses: aquasecurity/trivy-action@v0.36.0 # [INDEX]
+        with:
+          image-ref: 'your-dockerhub-username/your-repo-name:latest' # <-- FIXED: You must provide your image target here!
+          exit-code: '1'
+          format: 'table'
+          severity: 'HIGH,CRITICAL'
+          

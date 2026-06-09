@@ -34,7 +34,7 @@ jobs:
           cp -r css _site/
           cp -r js  _site/
           # PWA assets (manifest, service worker, icons, favicon)
-          cp manifest.json sw.js favicon.svg _site/
+          cp manifest.json sw.js favicon.svg favicon.ico favicon-32.png _site/
           cp -r icons _site/
           # Build the real config.js from the template (config.js is gitignored).
           sed "s|__FIREBASE_API_KEY__|${FIREBASE_API_KEY}|g" js/config.template.js > _site/js/config.js

@@ -13,7 +13,7 @@
      is wiped automatically and visitors get the new files on their next open.
 ═══════════════════════════════════════════════════════════ */
 
-const SHELL_VERSION = 'v1';                 // ← bump on every front-end change
+const SHELL_VERSION = 'v2';                 // ← bump on every front-end change
 const SHELL_CACHE = 'mm-shell-' + SHELL_VERSION;
 const IMG_CACHE = 'mm-images-v1';           // Cloudinary product photos
 const IMG_CACHE_MAX = 80;                   // keep at most ~80 images
@@ -31,6 +31,8 @@ const SHELL_ASSETS = [
   'js/chatbot.js',
   'manifest.json',
   'favicon.svg',
+  'favicon.ico',
+  'favicon-32.png',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'icons/apple-touch-icon.png'

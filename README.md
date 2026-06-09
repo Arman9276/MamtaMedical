@@ -326,4 +326,4 @@ Planned, in order of value-for-effort (all free, no new infrastructure):
 
 ---
 
-*Maintained by [Arman](https://github.com/Arman9276) · armannarsinh08@gmail.com*
+*Maintained by [Arman Narsinh](https://github.com/Arman9276) · armannarsinh08@gmail.com*

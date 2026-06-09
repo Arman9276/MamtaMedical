@@ -1,0 +1,77 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Single place that defines "is this the owner?".
+    // Must be signed in, with a VERIFIED email that matches the owner.
+    function isOwner() {
+      return request.auth != null
+          && request.auth.token.email_verified == true
+          && request.auth.token.email == "armannarsinh08@gmail.com";
+    }
+
+    // ── PRODUCTS ──  public read, owner-only write
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    // ── ANNOUNCEMENTS ──  public read, owner-only write
+    match /announcements/{annId} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    // ── SETTINGS (hours, store info) ──  public read, owner-only write
+    // NOTE: this is world-readable — never store private data here.
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    // ── REVIEWS ──  the ONLY collection the public can write to.
+    //   • anyone can CREATE a review, but it is heavily validated and always
+    //     starts unapproved, so it is invisible until the owner approves it;
+    //   • the public can only READ approved reviews;
+    //   • only the owner can approve (update) or delete.
+    match /reviews/{reviewId} {
+
+      // Read: an approved review is public; the owner sees everything
+      // (including pending). For queries this forces non-owners to filter on
+      // `approved == true`, so pending reviews can never reach customers.
+      allow read: if resource.data.approved == true || isOwner();
+
+      // Create: open to anyone — so validate every field tightly.
+      allow create: if
+            // exactly these fields, nothing extra
+            request.resource.data.keys().hasOnly(
+              ['productId', 'name', 'rating', 'text', 'approved', 'createdAt'])
+            // the product being reviewed must actually exist
+            && exists(/databases/$(database)/documents/products/$(request.resource.data.productId))
+            // name: a string of 2–40 characters
+            && request.resource.data.name is string
+            && request.resource.data.name.size() >= 2
+            && request.resource.data.name.size() <= 40
+            // rating: a whole number from 1 to 5
+            && request.resource.data.rating is int
+            && request.resource.data.rating >= 1
+            && request.resource.data.rating <= 5
+            // text: a string of 3–600 characters
+            && request.resource.data.text is string
+            && request.resource.data.text.size() >= 3
+            && request.resource.data.text.size() <= 600
+            // a customer can NEVER publish their own review
+            && request.resource.data.approved == false
+            // the timestamp must be set by the server, not faked by the client
+            && request.resource.data.createdAt == request.time;
+
+      // Only the owner can approve (update) or remove a review.
+      allow update, delete: if isOwner();
+    }
+
+    // ── BLOCK EVERYTHING ELSE ──
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

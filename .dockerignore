@@ -1,0 +1,13 @@
+.git
+.github
+.gitignore
+.gitleaksignore
+.trivyignore
+docs
+server
+README.md
+LICENSE
+firestore.rules
+Dockerfile
+.dockerignore
+js/config.template.js

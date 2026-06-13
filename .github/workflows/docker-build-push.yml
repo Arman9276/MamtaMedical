@@ -40,6 +40,4 @@ jobs:
                 context: .
                 file: dockerfile
                 push: true
-                tags: |
-                  ${{ vars.DOCKER_USERNAME }}/mamta-medical:latest
-                  ${{ vars.DOCKER_USERNAME }}/mamta-medical:v1.4.1
+                tags: ${{ vars.DOCKER_USERNAME }}/mamta-medical:v1.4.1

@@ -1,0 +1,30 @@
+name: "Docker pipeline"
+
+# Full Docker image lifecycle, kept separate from the code-security pipeline:
+#   docker-lint  ->  build & push to Docker Hub  ->  Trivy image scan
+# The CVE scan runs AFTER the push, against the image that was just published.
+on:
+  workflow_dispatch: # Trigger manually from the Actions tab
+
+jobs:
+  docker-lint:
+    name: Docker Lint
+    uses: ./.github/workflows/docker-lint.yml   # hadolint validates the Dockerfile
+    permissions:
+      contents: read          # read repository code
+
+  docker-build-push:
+    needs: docker-lint        # only build/push once the Dockerfile lints clean
+    name: Build & Push Docker Image
+    uses: ./.github/workflows/docker-build-push.yml
+    secrets: inherit          # pass DOCKER_PASSWORD into the reusable workflow
+    permissions:
+      contents: read          # read repository code
+
+  image-scan:
+    needs: docker-build-push  # scan the freshly pushed image for HIGH/CRITICAL CVEs
+    name: Image Scan
+    uses: ./.github/workflows/image-scan.yml
+    secrets: inherit          # pass DOCKER_PASSWORD so Trivy can pull the image
+    permissions:
+      contents: read          # read repository code

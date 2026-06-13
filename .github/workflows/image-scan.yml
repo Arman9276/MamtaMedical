@@ -35,7 +35,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Scan Docker Image with Trivy
-        uses: aquasecurity/trivy-action@v0.36.0
+        uses: aquasecurity/trivy-action@v0.70.0
         with:
           image-ref: ${{ steps.meta.outputs.image }}
           exit-code: '1'              # fail the job on findings at/above the severity below

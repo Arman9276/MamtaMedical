@@ -39,5 +39,6 @@ jobs:
         with:
           image-ref: ${{ steps.meta.outputs.image }}
           exit-code: '1'              # fail the job on findings at/above the severity below
+          ignore-unfixed: true        # skip CVEs with no fix available (nothing we can do)
           format: 'table'
           severity: 'HIGH,CRITICAL'

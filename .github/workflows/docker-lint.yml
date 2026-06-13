@@ -1,11 +1,14 @@
 name: Docker Lint
 
 on:
-    workflow_dispatch:
+    workflow_call:      # lets the security-scan orchestrator call this with `uses:`
+    workflow_dispatch:  # still runnable on its own from the Actions tab
 
 jobs:
     validate-dockerfile:
         runs-on: ubuntu-latest
+        permissions:
+            contents: read        # read repository code
         steps:
             - name: Checkout code
               uses: actions/checkout@v6.0.3
@@ -13,4 +16,5 @@ jobs:
             - name: Validate Dockerfile
               uses: hadolint/hadolint-action@v3.3.0
               with:
-                dockerfile: 'Dockerfile'
+                dockerfile: dockerfile   # lowercase, matches the actual file name
+                # failure-threshold: error  # uncomment to let warnings pass and only fail on errors

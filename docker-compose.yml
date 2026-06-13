@@ -1,7 +1,6 @@
 services:
   web:
-    build: .
-    image: mamta-medical:latest
+    image: arman9276/mamta-medical:v1.4.1
     container_name: mamta-medical
     ports:
       - "8080:80"

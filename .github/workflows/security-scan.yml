@@ -11,7 +11,7 @@ jobs:
       contents: read          # read repository code
       security-events: write  # upload alerts to the Security tab
       actions: read           # needed to call the reusable workflow
-    
+
   Semgrep:
     needs: Betterleaks
     name: Semgrep SAST
@@ -32,8 +32,14 @@ jobs:
     permissions:
       contents: read          # read repository code
       security-events: write  # upload alerts to the Security tab
-      actions: read     
-      
+      actions: read           # needed to call the reusable workflow
+
+  docker-lint:
+    name: Docker Lint
+    uses: ./.github/workflows/docker-lint.yml   # runs in parallel — lints the Dockerfile
+    permissions:
+      contents: read          # read repository code
+
   deploy:
     needs: [ Betterleaks, Semgrep, codeql ]
     name: Deploy to GitHub Pages
@@ -43,3 +49,19 @@ jobs:
       contents: read          # read repository code
       pages: write            # needed to deploy to GitHub Pages
       id-token: write         # needed to deploy to GitHub Pages
+
+  docker-build-push:
+    needs: [ Betterleaks, Semgrep, codeql, docker-lint ]   # only build/push after security passes AND Dockerfile is clean
+    name: Build & Push Docker Image
+    uses: ./.github/workflows/docker-build-push.yml
+    secrets: inherit          # pass DOCKER_PASSWORD into the reusable workflow
+    permissions:
+      contents: read          # read repository code
+
+  image-scan:
+    needs: docker-build-push  # scan the image we just pushed for HIGH/CRITICAL CVEs
+    name: Image Scan
+    uses: ./.github/workflows/image-scan.yml
+    secrets: inherit          # pass DOCKER_PASSWORD so Trivy can pull the image
+    permissions:
+      contents: read          # read repository code

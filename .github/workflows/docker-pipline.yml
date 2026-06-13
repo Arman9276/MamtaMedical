@@ -1,30 +1,40 @@
 name: "Docker pipeline"
 
-# Full Docker image lifecycle, kept separate from the code-security pipeline:
-#   docker-lint  ->  build & push to Docker Hub  ->  Trivy image scan
-# The CVE scan runs AFTER the push, against the image that was just published.
+# Full Docker image lifecycle: docker-lint -> build & push -> Trivy image scan.
+# The version tag is set ONCE here and passed to both build/push and scan,
+# so they always agree. No more :latest — only the immutable version tag.
 on:
-  workflow_dispatch: # Trigger manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Image version tag to build, push and scan (e.g. v1.4.2)"
+        required: true
+        default: "v1.4.2"
+        type: string
 
 jobs:
   docker-lint:
     name: Docker Lint
-    uses: ./.github/workflows/docker-lint.yml   # hadolint validates the Dockerfile
+    uses: ./.github/workflows/docker-lint.yml
     permissions:
-      contents: read          # read repository code
+      contents: read
 
   docker-build-push:
-    needs: docker-lint        # only build/push once the Dockerfile lints clean
+    needs: docker-lint
     name: Build & Push Docker Image
     uses: ./.github/workflows/docker-build-push.yml
-    secrets: inherit          # pass DOCKER_PASSWORD into the reusable workflow
+    with:
+      version: ${{ inputs.version }}
+    secrets: inherit
     permissions:
-      contents: read          # read repository code
+      contents: read
 
   image-scan:
-    needs: docker-build-push  # scan the freshly pushed image for HIGH/CRITICAL CVEs
+    needs: docker-build-push
     name: Image Scan
     uses: ./.github/workflows/image-scan.yml
-    secrets: inherit          # pass DOCKER_PASSWORD so Trivy can pull the image
+    with:
+      version: ${{ inputs.version }}
+    secrets: inherit
     permissions:
-      contents: read          # read repository code
+      contents: read

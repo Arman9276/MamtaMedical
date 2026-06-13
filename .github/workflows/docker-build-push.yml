@@ -2,6 +2,11 @@ name: Docker Build and Push
 
 on:
     workflow_call:
+        inputs:
+            version:
+                description: "Image version tag (e.g. v1.4.2)"
+                required: true
+                type: string
 
 jobs:
     build-and-push:
@@ -12,23 +17,23 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v6.0.3
 
-            # The DOCKER_USERNAME variable can carry a stray trailing newline
-            # (easy to paste in by accident). That newline makes the tag parser
-            # split "user/image" into two broken tags. Strip ALL whitespace here
-            # and build the tag list from the cleaned value, so it can't break.
-            - name: Resolve image tags
+            - name: Resolve image tag
               id: meta
               run: |
                 user="$(printf '%s' '${{ vars.DOCKER_USERNAME }}' | tr -d '[:space:]')"
+                ver="$(printf '%s' '${{ inputs.version }}' | tr -d '[:space:]')"
                 if [ -z "$user" ]; then
-                  echo "::error::DOCKER_USERNAME is empty after trimming. Set it on Settings -> Secrets and variables -> Actions -> Variables tab."
+                  echo "::error::DOCKER_USERNAME is empty. Set it on Settings -> Secrets and variables -> Actions -> Variables tab."
                   exit 1
                 fi
-                tags="${user}/mamta-medical:latest,${user}/mamta-medical:v1.4.1"
+                if [ -z "$ver" ]; then
+                  echo "::error::version input is empty."
+                  exit 1
+                fi
+                tag="${user}/mamta-medical:${ver}"
                 echo "username=${user}" >> "$GITHUB_OUTPUT"
-                echo "tags=${tags}"      >> "$GITHUB_OUTPUT"
-                echo "Cleaned username: [${user}]"
-                echo "Resolved tags:    ${tags}"
+                echo "tag=${tag}"        >> "$GITHUB_OUTPUT"
+                echo "Building and pushing: ${tag}"
 
             - name: Login to Docker Hub
               uses: docker/login-action@v4.1.0
@@ -42,4 +47,4 @@ jobs:
                 context: .
                 file: dockerfile
                 push: true
-                tags: ${{ steps.meta.outputs.tags }}
+                tags: ${{ steps.meta.outputs.tag }}

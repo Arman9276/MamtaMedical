@@ -6,10 +6,11 @@ COPY css/   ./css/
 COPY js/    ./js/
 COPY icons/ ./icons/
 
-FROM nginxinc/nginx-unprivileged:1.28-alpine
+FROM nginxinc/nginx-unprivileged:1.30-alpine
 
-# Patch OS packages to clear fixable CVEs inherited from the base image.
-# Needs root; we drop back to the unprivileged nginx user before runtime.
+# Patch remaining OS packages to clear any fixable CVEs (needs root).
+# The nginx CVEs (incl. CVE-2026-42945) are fixed upstream in 1.30.1, which
+# this base ships. We drop back to the unprivileged nginx user before runtime.
 USER root
 RUN apk upgrade --no-cache
 

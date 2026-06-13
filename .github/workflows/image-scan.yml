@@ -2,30 +2,32 @@
 name: Image Scanner
 
 on:
-  workflow_call: # Enables this workflow to be called as a reusable template
+  workflow_call:
+    inputs:
+      version:
+        description: "Image version tag to scan (e.g. v1.4.2)"
+        required: true
+        type: string
 
 jobs:
   image-scan:
     runs-on: ubuntu-latest
     permissions:
-      contents: read          # read repository code
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v6.0.3
 
-      # Strip any stray whitespace/newline from DOCKER_USERNAME before building
-      # the image reference, so a polluted variable can't produce an invalid ref.
       - name: Resolve image reference
         id: meta
         run: |
           user="$(printf '%s' '${{ vars.DOCKER_USERNAME }}' | tr -d '[:space:]')"
-          if [ -z "$user" ]; then
-            echo "::error::DOCKER_USERNAME is empty after trimming. Set it on the Variables tab."
-            exit 1
-          fi
-          image="${user}/mamta-medical:latest"
-          echo "username=${user}"  >> "$GITHUB_OUTPUT"
-          echo "image=${image}"     >> "$GITHUB_OUTPUT"
+          ver="$(printf '%s' '${{ inputs.version }}' | tr -d '[:space:]')"
+          if [ -z "$user" ]; then echo "::error::DOCKER_USERNAME is empty (Variables tab)."; exit 1; fi
+          if [ -z "$ver" ]; then echo "::error::version input is empty."; exit 1; fi
+          image="${user}/mamta-medical:${ver}"
+          echo "username=${user}" >> "$GITHUB_OUTPUT"
+          echo "image=${image}"    >> "$GITHUB_OUTPUT"
           echo "Image to scan: ${image}"
 
       - name: Login to Docker Hub
@@ -39,6 +41,6 @@ jobs:
         with:
           image-ref: ${{ steps.meta.outputs.image }}
           exit-code: '1'              # fail the job on findings at/above the severity below
-          ignore-unfixed: true        # skip CVEs with no fix available (nothing we can do)
+          ignore-unfixed: true        # skip CVEs with no fix available
           format: 'table'
           severity: 'HIGH,CRITICAL'

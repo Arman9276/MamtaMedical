@@ -24,6 +24,7 @@ Firebase, Cloudinary, and a Cloudflare Worker doing the heavy lifting — all on
 - [The AI proxy (Cloudflare Worker)](#the-ai-proxy-cloudflare-worker)
 - [PWA (installable + offline)](#pwa-installable--offline)
 - [Deployment & CI pipeline](#deployment--ci-pipeline)
+- [Docker image](#docker-image)
 - [Security model](#security-model)
 - [Contributing](#contributing)
 - [Versioning & releases](#versioning--releases)
@@ -110,9 +111,15 @@ MamtaMedical/
 │   ├── SECURITY.md         Security overview + bot-protection setup
 │   └── firebase-hosting-headers.example.json
 │
+├── dockerfile              Multi-stage build → unprivileged nginx serving the static site
+├── docker-compose.yml      Run the published image locally (port 8080)
+├── .dockerignore
+├── nginx/
+│   └── default.conf        nginx config for the container (listens on 8080)
+│
 ├── firestore.rules         Database access rules (who can read/write)
 ├── _headers                Security headers (Netlify / Cloudflare Pages only — ignored by GH Pages)
-└── .github/workflows/      CI: security-scan.yml is the deploy orchestrator
+└── .github/workflows/      CI: security-scan.yml (code + deploy), docker-pipeline.yml (image)
 ```
 
 ---
@@ -252,9 +259,48 @@ the template + secret, and publishes.
 > never published.) After a deploy, check the build log's `Publishing:` list to confirm your file is
 > there.
 
-Other workflows in `.github/workflows/` (Docker, image-scan, artifacts-demo, job outputs, self-hosted
-runner, smart-pipeline, gitleaks) are **standalone / learning workflows** and are **not** part of the
-deploy gate.
+The Docker image has its **own** orchestrator, `docker-pipeline.yml` — see [Docker image](#docker-image)
+below. The remaining workflows (`artifacts-demo`, `job`, the self-hosted runner test, `smart-pipeline`)
+are **standalone learning workflows** and are not part of either pipeline.
+
+---
+
+## Docker image
+
+The site is also published as a Docker image (`arman9276/mamta-medical`) — a static build served by an
+**unprivileged nginx** on Alpine. GitHub Pages is production; the image is for self-hosting and local
+parity. *(The Docker Hub repo is currently private — you need access to pull it.)*
+
+**Run it locally**
+
+```bash
+docker compose up        # uses docker-compose.yml → http://localhost:8080
+# or
+docker run --rm -p 8080:8080 arman9276/mamta-medical:v1.4.2
+```
+
+nginx listens on **8080** inside the container and runs as the non-root `nginx` user.
+
+**Build & publish pipeline** — `.github/workflows/docker-pipeline.yml`, run from **Actions → "Docker
+pipeline" → Run workflow**, where you enter the version tag (e.g. `v1.4.2`):
+
+```
+docker-lint (hadolint)
+      ↓ needs
+Build & push to Docker Hub   ← single immutable version tag, no :latest
+      ↓ needs
+Trivy image scan             ← fails on fixable HIGH/CRITICAL CVEs
+```
+
+The version you enter is the single source of truth: it's used for both the pushed tag and the scan
+target, so the two can't drift.
+
+> ⚠️ **Adding a new static file?** As well as the `page-deploy.yml` copy list (above), the **`dockerfile`
+> copies an explicit list of files** into the image. Add your new top-level asset to the `COPY` lines in
+> `dockerfile` too, or it'll be missing from the container even though it's in the repo.
+
+> **Config note:** `js/config.js` is injected at deploy and is **not** baked into the image. The static
+> pages serve without it, but Firebase-backed features won't initialise when running the bare image.
 
 ---
 
@@ -288,6 +334,7 @@ every step.
 
 **Checklist when your change adds or touches files**
 - [ ] New static file? → added it to the copy list in `page-deploy.yml`.
+- [ ] New static file? → also added it to the `COPY` lines in `dockerfile` (same trap, container side).
 - [ ] Changed HTML/CSS/JS? → bumped `SHELL_VERSION` in `sw.js`.
 - [ ] Touched data access? → re-read and, if needed, updated `firestore.rules`.
 - [ ] Any public input rendered with `innerHTML`? → escaped it (see the `esc()` helpers).
@@ -304,12 +351,13 @@ Semantic versioning via git tags (`vMAJOR.MINOR.PATCH`).
 - **PATCH** — fix
 
 ```bash
-git tag v1.4.1
-git push origin v1.4.1
+git tag v1.4.2
+git push origin v1.4.2
 ```
 
 Then draft the release on GitHub against that tag. Verify the change is actually live **before**
-tagging a release.
+tagging a release. If the release ships a new container build, run the **Docker pipeline** with the
+**same** `vX.Y.Z` so the image tag and the GitHub release agree.
 
 ---
 

@@ -8,9 +8,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Image version tag to build, push and scan (e.g. v1.4.3)"
+        description: "Image version tag to build, push and scan (e.g. v1.4.5)"
         required: true
-        default: "v1.4.3"
+        default: "v1.4.5"
         type: string
 
 jobs:

@@ -8,11 +8,15 @@ COPY icons/ ./icons/
 
 FROM nginxinc/nginx-unprivileged:1.30-alpine
 
-# Patch remaining OS packages to clear any fixable CVEs (needs root).
-# The nginx CVEs (incl. CVE-2026-42945) are fixed upstream in 1.30.1, which
-# this base ships. We drop back to the unprivileged nginx user before runtime.
+# Patch OS packages, then drop curl. A static-file nginx never calls curl at
+# runtime (the healthcheck uses busybox wget), so removing it clears the curl
+# CVEs and trims attack surface. Kept in ONE RUN layer so no new layer is added
+# and the image size stays flat. '|| true' keeps the build green if curl turns
+# out to be a pinned dependency that apk refuses to remove.
 USER root
-RUN apk upgrade --no-cache
+RUN apk upgrade --no-cache \
+ && (apk del curl 2>/dev/null && echo "curl removed" \
+     || echo "curl NOT removed (likely a dependency) — leaving it in place")
 
 COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder --chown=nginx:nginx /site /usr/share/nginx/html

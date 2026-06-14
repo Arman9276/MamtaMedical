@@ -16,5 +16,5 @@ jobs:
             - name: Validate Dockerfile
               uses: hadolint/hadolint-action@v3.3.0
               with:
-                dockerfile: dockerfile   # lowercase, matches the actual file name
+                dockerfile: Dockerfile   # lowercase, matches the actual file name
                 # failure-threshold: error  # uncomment to let warnings pass and only fail on errors

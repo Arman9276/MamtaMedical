@@ -269,7 +269,7 @@ are **standalone learning workflows** and are not part of either pipeline.
 
 The site is also published as a Docker image (`arman9276/mamta-medical`) — a static build served by an
 **unprivileged nginx** on Alpine. GitHub Pages is production; the image is for self-hosting and local
-parity. *(The Docker Hub repo is currently private — you need access to pull it.)*
+parity. The Docker Hub repo is public — anyone can pull it.
 
 **Run it locally**
 

@@ -1,4 +1,4 @@
-FROM alpine:3.21 AS builder
+FROM alpine:3.24 AS builder
 WORKDIR /site
 COPY index.html products.html admin.html sw.js manifest.json \
      favicon.ico favicon.svg favicon-32.png _headers ./

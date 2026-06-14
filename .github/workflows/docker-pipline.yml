@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Image version tag to build, push and scan (e.g. v1.4.2)"
+        description: "Image version tag to build, push and scan (e.g. v1.4.3)"
         required: true
-        default: "v1.4.2"
+        default: "v1.4.3"
         type: string
 
 jobs:
@@ -33,6 +33,16 @@ jobs:
     needs: docker-build-push
     name: Image Scan
     uses: ./.github/workflows/image-scan.yml
+    with:
+      version: ${{ inputs.version }}
+    secrets: inherit
+    permissions:
+      contents: read
+
+  grype-scan:
+    needs: docker-build-push
+    name: Grype Scan
+    uses: ./.github/workflows/grype-scan.yml
     with:
       version: ${{ inputs.version }}
     secrets: inherit

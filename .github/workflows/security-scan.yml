@@ -3,7 +3,7 @@ name: "Security scan"
 on:
   workflow_dispatch: # Allows you to trigger this scan manually from the Actions tab
   pull_request:
-    branches: [ main] 
+    branches: [ main ] 
 
 jobs:
   Betterleaks:

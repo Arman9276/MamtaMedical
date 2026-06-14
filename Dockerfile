@@ -6,7 +6,7 @@ COPY css/   ./css/
 COPY js/    ./js/
 COPY icons/ ./icons/
 
-FROM nginxinc/nginx-unprivileged:1.30-alpine
+FROM nginxinc/nginx-unprivileged:1.31-alpine
 
 # Patch OS packages, then drop curl. A static-file nginx never calls curl at
 # runtime (the healthcheck uses busybox wget), so removing it clears the curl

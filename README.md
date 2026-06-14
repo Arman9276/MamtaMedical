@@ -111,7 +111,7 @@ MamtaMedical/
 │   ├── SECURITY.md         Security overview + bot-protection setup
 │   └── firebase-hosting-headers.example.json
 │
-├── dockerfile              Multi-stage build → unprivileged nginx serving the static site
+├── Dockerfile              Multi-stage build → unprivileged nginx serving the static site
 ├── docker-compose.yml      Run the published image locally (port 8080)
 ├── .dockerignore
 ├── nginx/
@@ -119,7 +119,9 @@ MamtaMedical/
 │
 ├── firestore.rules         Database access rules (who can read/write)
 ├── _headers                Security headers (Netlify / Cloudflare Pages only — ignored by GH Pages)
-└── .github/workflows/      CI: security-scan.yml (code + deploy), docker-pipeline.yml (image)
+└── .github/
+    ├── dependabot.yml      Weekly update PRs for GitHub Actions + the base image
+    └── workflows/          security-scan.yml (code + deploy) · docker-pipline.yml (image)
 ```
 
 ---
@@ -259,9 +261,9 @@ the template + secret, and publishes.
 > never published.) After a deploy, check the build log's `Publishing:` list to confirm your file is
 > there.
 
-The Docker image has its **own** orchestrator, `docker-pipeline.yml` — see [Docker image](#docker-image)
-below. The remaining workflows (`artifacts-demo`, `job`, the self-hosted runner test, `smart-pipeline`)
-are **standalone learning workflows** and are not part of either pipeline.
+The Docker image has its **own** orchestrator, `docker-pipline.yml` — see [Docker image](#docker-image)
+below. The remaining workflows (`job`, `secrets-scan`, `smart-pipeline`, and the self-hosted runner
+test) are **standalone learning workflows** and are not part of either pipeline.
 
 ---
 
@@ -276,28 +278,29 @@ parity. The Docker Hub repo is public — anyone can pull it.
 ```bash
 docker compose up        # uses docker-compose.yml → http://localhost:8080
 # or
-docker run --rm -p 8080:8080 arman9276/mamta-medical:v1.4.2
+docker run --rm -p 8080:8080 arman9276/mamta-medical:v1.4.3
 ```
 
 nginx listens on **8080** inside the container and runs as the non-root `nginx` user.
 
-**Build & publish pipeline** — `.github/workflows/docker-pipeline.yml`, run from **Actions → "Docker
-pipeline" → Run workflow**, where you enter the version tag (e.g. `v1.4.2`):
+**Build & publish pipeline** — `.github/workflows/docker-pipline.yml`, run from **Actions → "Docker
+pipeline" → Run workflow**, where you enter the version tag (e.g. `v1.4.3`):
 
 ```
 docker-lint (hadolint)
       ↓ needs
 Build & push to Docker Hub   ← single immutable version tag, no :latest
       ↓ needs
-Trivy image scan             ← fails on fixable HIGH/CRITICAL CVEs
+   ├── Trivy image scan       ← fails on fixable HIGH/CRITICAL CVEs
+   └── Grype image scan       ← second scanner (Anchore), runs in parallel
 ```
 
 The version you enter is the single source of truth: it's used for both the pushed tag and the scan
 target, so the two can't drift.
 
-> ⚠️ **Adding a new static file?** As well as the `page-deploy.yml` copy list (above), the **`dockerfile`
+> ⚠️ **Adding a new static file?** As well as the `page-deploy.yml` copy list (above), the **`Dockerfile`
 > copies an explicit list of files** into the image. Add your new top-level asset to the `COPY` lines in
-> `dockerfile` too, or it'll be missing from the container even though it's in the repo.
+> `Dockerfile` too, or it'll be missing from the container even though it's in the repo.
 
 > **Config note:** `js/config.js` is injected at deploy and is **not** baked into the image. The static
 > pages serve without it, but Firebase-backed features won't initialise when running the bare image.
@@ -312,6 +315,8 @@ target, so the two can't drift.
 - **No secrets in the repo.** Firebase `apiKey` is public-by-design; the AI keys live only in the
   Worker; `config.js` is gitignored and built at deploy time.
 - **CI scanning gate.** Secrets scan + SAST + CodeQL must pass before anything deploys.
+- **Image + dependency scanning.** Published images are scanned by Trivy *and* Grype for HIGH/CRITICAL
+  CVEs; Dependabot opens weekly PRs when an Action or the base image has a newer version.
 - **Headers.** `_headers` hardens responses on Netlify/Cloudflare Pages (note: GitHub Pages ignores
   this file). Admin is `noindex` and never framed.
 
@@ -334,7 +339,7 @@ every step.
 
 **Checklist when your change adds or touches files**
 - [ ] New static file? → added it to the copy list in `page-deploy.yml`.
-- [ ] New static file? → also added it to the `COPY` lines in `dockerfile` (same trap, container side).
+- [ ] New static file? → also added it to the `COPY` lines in `Dockerfile` (same trap, container side).
 - [ ] Changed HTML/CSS/JS? → bumped `SHELL_VERSION` in `sw.js`.
 - [ ] Touched data access? → re-read and, if needed, updated `firestore.rules`.
 - [ ] Any public input rendered with `innerHTML`? → escaped it (see the `esc()` helpers).
@@ -351,8 +356,8 @@ Semantic versioning via git tags (`vMAJOR.MINOR.PATCH`).
 - **PATCH** — fix
 
 ```bash
-git tag v1.4.2
-git push origin v1.4.2
+git tag v1.4.3
+git push origin v1.4.3
 ```
 
 Then draft the release on GitHub against that tag. Verify the change is actually live **before**

@@ -12,8 +12,6 @@ on:
         required: true
         default: "v1.4.3"
         type: string
-  pull_request:
-    branches: [ main ]
 
 jobs:
   docker-lint:

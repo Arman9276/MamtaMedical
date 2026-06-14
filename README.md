@@ -278,13 +278,13 @@ parity. The Docker Hub repo is public — anyone can pull it.
 ```bash
 docker compose up        # uses docker-compose.yml → http://localhost:8080
 # or
-docker run --rm -p 8080:8080 arman9276/mamta-medical:v1.4.3
+docker run --rm -p 8080:8080 arman9276/mamta-medical:v1.4.5
 ```
 
 nginx listens on **8080** inside the container and runs as the non-root `nginx` user.
 
 **Build & publish pipeline** — `.github/workflows/docker-pipline.yml`, run from **Actions → "Docker
-pipeline" → Run workflow**, where you enter the version tag (e.g. `v1.4.3`):
+pipeline" → Run workflow**, where you enter the version tag (e.g. `v1.4.5`):
 
 ```
 docker-lint (hadolint)

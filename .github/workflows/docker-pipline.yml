@@ -1,8 +1,13 @@
 name: "Docker pipeline"
 
-# Full Docker image lifecycle: docker-lint -> build & push -> Trivy image scan.
-# The version tag is set ONCE here and passed to both build/push and scan,
-# so they always agree. No more :latest — only the immutable version tag.
+# Full Docker image lifecycle: docker-lint -> build & push -> Trivy + Grype scans.
+# The version tag is set ONCE here and passed to build/push and scans, so they
+# always agree. No more :latest — only the immutable version tag.
+#
+# Triggers:
+#   - workflow_dispatch : full pipeline (lint -> build/push -> scan) for releases
+#   - pull_request      : lint ONLY (validate the Dockerfile before merge).
+#     PRs never build/push/scan: the build/scan jobs are gated to manual runs.
 on:
   workflow_dispatch:
     inputs:
@@ -11,42 +16,48 @@ on:
         required: true
         default: "v1.4.3"
         type: string
-   pull_request:
-     branches: [ main ]  
+  pull_request:
+    branches: [ main ]
 
 jobs:
   docker-lint:
     name: Docker Lint
-    uses: ./.github/workflows/docker-lint.yml
+    uses: ./.github/workflows/docker-lint.yml   # runs on BOTH PRs and manual runs
     permissions:
       contents: read
 
   docker-build-push:
     needs: docker-lint
+    if: github.event_name == 'workflow_dispatch'   # release runs only — never on PRs
     name: Build & Push Docker Image
     uses: ./.github/workflows/docker-build-push.yml
     with:
-      version: ${{ inputs.version }}
+      # On a PR there is no input, so inputs.version is empty; the fallback keeps
+      # the required input valid. The job is skipped on PRs anyway (see `if`),
+      # so this fallback value is never actually used to tag or push.
+      version: ${{ inputs.version || 'unused-on-pr' }}
     secrets: inherit
     permissions:
       contents: read
 
   image-scan:
     needs: docker-build-push
+    if: github.event_name == 'workflow_dispatch'
     name: Image Scan
     uses: ./.github/workflows/image-scan.yml
     with:
-      version: ${{ inputs.version }}
+      version: ${{ inputs.version || 'unused-on-pr' }}
     secrets: inherit
     permissions:
       contents: read
 
   grype-scan:
     needs: docker-build-push
+    if: github.event_name == 'workflow_dispatch'
     name: Grype Scan
     uses: ./.github/workflows/grype-scan.yml
     with:
-      version: ${{ inputs.version }}
+      version: ${{ inputs.version || 'unused-on-pr' }}
     secrets: inherit
     permissions:
       contents: read

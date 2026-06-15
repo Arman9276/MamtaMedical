@@ -13,7 +13,7 @@
      is wiped automatically and visitors get the new files on their next open.
 ═══════════════════════════════════════════════════════════ */
 
-const SHELL_VERSION = 'v2';                 // ← bump on every front-end change
+const SHELL_VERSION = 'v3';                 // ← bump on every front-end change
 const SHELL_CACHE = 'mm-shell-' + SHELL_VERSION;
 const IMG_CACHE = 'mm-images-v1';           // Cloudinary product photos
 const IMG_CACHE_MAX = 80;                   // keep at most ~80 images

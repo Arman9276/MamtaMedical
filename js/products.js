@@ -13,6 +13,13 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.13.0/fireba
             return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         }
 
+        /* ── CLOUDINARY: serve compressed, right-sized images (cuts image bandwidth ~80%) ── */
+        function cldImg(url, width) {
+            if (!url || url.indexOf('/upload/') === -1) return url;          // not a Cloudinary URL → leave untouched
+            if (/\/upload\/[^/]*(f_auto|q_auto|w_\d)/.test(url)) return url; // already transformed → don't double up
+            return url.replace('/upload/', '/upload/f_auto,q_auto,w_' + width + '/');
+        }
+
         /* ── THEME ── */
         const html = document.documentElement;
         const themeBtn = document.getElementById('themeBtn');
@@ -97,7 +104,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.13.0/fireba
                 return `<div class="p-card${p.inStock ? '' : ' oos'}" data-id="${esc(p.id)}" style="animation-delay:${Math.min(i * .04, .4)}s">
       ${!p.inStock ? '<span class="oos-badge">Out of Stock</span>' : ''}
       ${p.photoUrl
-                        ? `<img class="p-photo" src="${esc(p.photoUrl)}" alt="${esc(p.name)}" loading="lazy"/>`
+                        ? `<img class="p-photo" src="${esc(cldImg(p.photoUrl, 400))}" alt="${esc(p.name)}" loading="lazy"/>`
                         : `<span class="p-emoji">${esc(p.emoji || '💊')}</span>`}
       <span class="p-cat${isGen(p) ? ' gen' : ''}">${esc(catLabel(p.cat))}</span>
       <div class="p-name">${esc(p.name)}</div>
@@ -207,7 +214,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.13.0/fireba
 
             // media: real photo if available, else the emoji
             document.getElementById('pdMedia').innerHTML = p.photoUrl
-                ? `<img src="${esc(p.photoUrl)}" alt="${esc(p.name)}"/>`
+                ? `<img src="${esc(cldImg(p.photoUrl, 800))}" alt="${esc(p.name)}"/>`
                 : `<span class="pd-emoji">${esc(p.emoji || '💊')}</span>`;
 
             // category pill

@@ -23,6 +23,13 @@ function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+/* ── CLOUDINARY: serve compressed, right-sized images ── */
+function cldImg(url, width) {
+    if (!url || url.indexOf('/upload/') === -1) return url;
+    if (/\/upload\/[^/]*(f_auto|q_auto|w_\d)/.test(url)) return url;
+    return url.replace('/upload/', '/upload/f_auto,q_auto,w_' + width + '/');
+}
+
 /* ── THEME ── */
 const html = document.documentElement;
 const themeBtn = document.getElementById('themeBtn');
@@ -447,7 +454,7 @@ function renderProductsTable(products, tbodyId, showActions = true) {
     tbody.innerHTML = products.map(p => `
     <tr>
       <td>${p.photoUrl
-            ? `<img class="p-thumb" src="${esc(p.photoUrl)}" alt="${esc(p.name)}" loading="lazy"/>`
+            ? `<img class="p-thumb" src="${esc(cldImg(p.photoUrl, 200))}" alt="${esc(p.name)}" loading="lazy"/>`
             : `<div class="p-thumb-placeholder">${esc(p.emoji || '💊')}</div>`}</td>
       <td><div class="p-name-cell">${esc(p.name)}</div><div class="p-brand-cell">${esc(p.brand || '')}</div></td>
       <td class="hide-mobile">${esc(catLabel(p.cat))}</td>

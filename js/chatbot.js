@@ -27,6 +27,13 @@
     return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
+  /* ── CLOUDINARY: serve compressed, right-sized images (cuts image bandwidth ~80%) ── */
+  function cldImg(url, width) {
+    if (!url || url.indexOf('/upload/') === -1) return url;
+    if (/\/upload\/[^/]*(f_auto|q_auto|w_\d)/.test(url)) return url;
+    return url.replace('/upload/', '/upload/f_auto,q_auto,w_' + width + '/');
+  }
+
   /* ── CATEGORY LABELS (kept in sync with products.html) ── */
   function mmCatLabel(c) {
     const m = { 'fever-pain': 'Fever & Pain', 'vitamins': 'Vitamins', 'skin': 'Skin Care', 'diabetes': 'Diabetes', 'baby': 'Baby Care', 'first-aid': 'First Aid', 'general': 'General Store' };
@@ -434,7 +441,7 @@ YOUR CORE RULES — FOLLOW STRICTLY:
     card.innerHTML = `
     <div class="mm-pcard-top">
       ${p.photoUrl
-        ? `<img class="mm-pcard-photo" src="${esc(p.photoUrl)}" alt="${esc(p.name)}" loading="lazy"/>`
+        ? `<img class="mm-pcard-photo" src="${esc(cldImg(p.photoUrl, 400))}" alt="${esc(p.name)}" loading="lazy"/>`
         : `<span class="mm-pcard-emoji">${esc(p.emoji || '💊')}</span>`}
       <div class="mm-pcard-info">
         <h5>${esc(p.name)}</h5>

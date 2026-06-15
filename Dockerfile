@@ -21,6 +21,7 @@ FROM nginxinc/nginx-unprivileged:1.31-alpine
 # to the latest available version, and fails loudly if the repo somehow can't
 # provide them, instead of silently leaving a stale copy.
 USER root
+# hadolint ignore=DL3018
 RUN apk upgrade --no-cache \
  && apk add --no-cache --upgrade busybox freetype \
  && (apk del curl 2>/dev/null && echo "curl removed" \

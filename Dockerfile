@@ -13,8 +13,16 @@ FROM nginxinc/nginx-unprivileged:1.31-alpine
 # CVEs and trims attack surface. Kept in ONE RUN layer so no new layer is added
 # and the image size stays flat. '|| true' keeps the build green if curl turns
 # out to be a pinned dependency that apk refuses to remove.
+#
+# `apk upgrade` already pulls the newest patched versions of every installed
+# package. The explicit `apk add --upgrade busybox freetype` afterwards is a
+# belt-and-braces step: it forces those two specific packages (flagged by
+# Docker Scout — CVE-2025-60876 in busybox wget, CVE-2026-23865 in freetype)
+# to the latest available version, and fails loudly if the repo somehow can't
+# provide them, instead of silently leaving a stale copy.
 USER root
 RUN apk upgrade --no-cache \
+ && apk add --no-cache --upgrade busybox freetype \
  && (apk del curl 2>/dev/null && echo "curl removed" \
      || echo "curl NOT removed (likely a dependency) — leaving it in place")
 
